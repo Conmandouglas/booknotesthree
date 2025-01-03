@@ -60,11 +60,17 @@ Thu, Jan 2
 [y] Add correct delete functionality and if null don't show
 
 Fri, Jan 3
-[] Make sure everything *functions* as intended
-[] Make sure working version is pushed to github
+[y] Make sure everything *functions* as intended
+[y] Make sure working version is pushed to github
 [] Reformat file structure to be more organized (**WILL NOT BE AN EASY TASK**)
+  [] Instead of index.js, have a frontend.js and backend.js
+  [] Make sure it is working before continue
+  [] Split each js file further by adding a frontendroutesjs and backendroutes.js
+  [] Make sure it is working before continue
+  [] Move javascript in EJS files into individual javascript files
+  [] Make sure everything is organized and one code type is in each file
 [] Comment code and understand all code present
-- will not finish today, finish by January 4 coffee shop.
+
 
 
 KEEP THIS NOTE OPEN AFTER PROJECT:
