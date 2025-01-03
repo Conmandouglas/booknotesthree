@@ -1,0 +1,32 @@
+<%- include('./partials/_header.ejs') %>
+
+<section>
+  <div class="form-container">
+    <div class="form">
+      <h1><%= book ? 'Edit Book' : review ? 'Edit Review' : 'Add Book' %></h1>
+      <form action="<%= book ? '/update' : review ? '/updateReview' : '/add' %>" method="POST">
+        <% if (book) { %>
+          <input type="hidden" name="id" value="<%= book.book_id %>">
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" value="<%= book.title %>" required>
+          <label for="author_name">Author Name:</label>
+          <input type="text" id="author_name" name="author_name" value="<%= book.author_name %>" required>
+        <% } else if (review) { %>
+          <input type="hidden" name="id" value="<%= review.id %>">
+          <label for="details">Review Details:</label>
+          <textarea id="details" name="details" required><%= review.details %></textarea>
+          <label for="grade">Review Grade:</label>
+          <input type="number" id="grade" name="grade" value="<%= review.grade %>" required>
+        <% } else { %>
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" required>
+          <label for="author_name">Author Name:</label>
+          <input type="text" id="author_name" name="author_name" required>
+        <% } %>
+        <button type="submit"><%= book ? 'Update Book' : review ? 'Update Review' : 'Add Book' %></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<%- include('./partials/_footer.ejs') %>

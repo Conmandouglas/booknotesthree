@@ -1,0 +1,121 @@
+<%- include('./partials/_header.ejs') %>
+
+<section>
+  <heading>
+    <h1>Books & Reviews</h1>
+    <p>Welcome, <%= userName %>!</p>
+    <hr />
+    <div id="action-buttons">
+      <button id="addReviewButton">Add Review</button>
+      <button><a href="/add">Add Book</a></button>
+      <button><a href="/users">Change User</a></button>
+    </div>
+  </heading>
+  <div id="reviewFormContainer" class="form-container">
+    <div id="reviewForm" class="form" style="display: none; position: relative;">
+      <a class="close" href="javascript:void(0)" onclick="closeReviewForm()">×</a>
+      <form action="/addReview" method="POST">
+        <label for="bookSelect">Select a book to review:</label>
+        <select id="bookSelect" name="book_id">
+          <option value="">-- Select a book --</option>
+          <% booksList.forEach(book => { %>
+            <option value="<%= book.id %>"><%= book.title %> by <%= book.author_name %></option>
+          <% }) %>
+        </select>
+        <label for="details">Review Details:</label>
+        <textarea id="details" name="details" required></textarea>
+        <label for="grade">Review Grade:</label>
+        <input type="number" id="grade" name="grade" min="0" max="10" required>
+        <button type="submit">Submit Review</button>
+      </form>
+    </div>
+  </div>
+  <div id="reviews">
+    <% if (locals.error) { %>
+      <p style="color: red;"><%= error %></p>
+    <% } %>
+    <% if (booksList && booksList.length === 0) { %>
+      <p>No books found.</p>
+    <% } else { %>
+      <% booksList.forEach(book => { %>
+        <div class="book" id="book-<%= book.id %>">
+          <a class="more" href="javascript:void(0)" onclick="toggleEditAndDelete(<%= book.id %>)">&#x2026;</a> <!-- Unicode character for ellipsis -->
+          <img src="<%= book.image_url %>" alt="<%= book.title %>">
+          <h2><%= book.title %></h2>
+          <p>Author: <%= book.author_name %></p>
+          <div class="edit-and-delete" id="edit-and-delete-<%= book.id %>" style="display: none;">
+            <button><a href="/edit?id=<%= book.id %>">Edit Book</a></button>
+            <button class="delete" onclick="deleteBook(<%= book.id %>)">Delete Book</button>
+          </div>
+          <h3>Reviews:</h3>
+          <% if (book.reviews.length === 0) { %>
+            <p>No reviews found.</p>
+          <% } else { %>
+            <ul>
+              <% book.reviews.forEach(review => { %>
+                <li class="review">
+                  <p>Details: <%= review.details %></p>
+                  <p>Grade: <%= review.grade %></p>
+                  <button><a href="/editReview?id=<%= review.id %>">Edit Review</a></button>
+                  <button class="delete" onclick="deleteReview(<%= review.id %>)">Delete Review</a></button>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</section>
+<hr>
+
+<%- include('./partials/_footer.ejs') %>
+
+<script>
+  document.getElementById('addReviewButton').addEventListener('click', function() {
+    document.getElementById('reviewForm').style.display = 'block';
+  });
+
+  function closeReviewForm() {
+    document.getElementById('reviewForm').style.display = 'none';
+  }
+
+  document.getElementById('bookSelect').addEventListener('change', function() {
+    document.getElementById('selectedBookId').value = this.value;
+  });
+
+  function toggleEditAndDelete(bookId) {
+    const editAndDeleteDiv = document.getElementById(`edit-and-delete-${bookId}`);
+    if (editAndDeleteDiv.style.display === 'none' || editAndDeleteDiv.style.display === '') {
+      editAndDeleteDiv.style.display = 'block';
+    } else {
+      editAndDeleteDiv.style.display = 'none';
+    }
+  }
+
+  function deleteBook(bookId) {
+    if (confirm('Are you sure you want to delete this book?')) {
+      fetch(`/deleteBook?id=${bookId}`, { method: 'DELETE' })
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert('Failed to delete book');
+          }
+        });
+    }
+  }
+
+  function deleteReview(reviewId) {
+    if (confirm('Are you sure you want to delete this review?')) {
+      fetch(`/deleteReview?id=${reviewId}`, { method: 'DELETE' })
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert('Failed to delete review');
+          }
+        });
+    }
+  }
+</script>

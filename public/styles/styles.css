@@ -1,0 +1,195 @@
+body {
+  background-color: #f0f4f8; /* Light background color */
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.selected {
+  font-weight: bold;
+}
+
+.user {
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  list-style: none;
+  margin-bottom: 10px;
+}
+
+#action-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 550px; /* Set a maximum width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Ensure the close button is positioned relative to this div */
+}
+
+.form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.form input[type="text"],
+.form input[type="number"],
+.form textarea,
+.form select {
+  width: 100%;
+  max-width: 500px; /* Set a maximum width */
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, border-width 0.3s ease; /* Smooth transition for border color */
+}
+
+.form input[type="text"]:focus,
+.form input[type="number"]:focus,
+.form textarea:focus,
+.form select:focus {
+  border-color: #007bff; /* Blue border color on focus */
+  border-width: 3px;
+  outline: none; /* Remove default outline */
+}
+
+.form button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form button:hover {
+  background-color: #0056b3;
+}
+
+#reviews {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.book {
+  border: 1px solid #ccc;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff; /* White background for each book */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 8px; /* Rounded corners */
+  transition: transform 0.2s; /* Smooth transition for hover effect */
+  position: relative; /* Ensure the more button is positioned relative to this div */
+}
+
+.book:hover {
+  transform: translateY(-5px); /* Slight lift on hover */
+}
+
+.book img {
+  object-fit: cover;
+  width: 160px;
+  border-radius: 4px; /* Rounded corners for images */
+}
+
+.review {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #fff; /* White background for each review */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 8px; /* Rounded corners */
+}
+
+button {
+  background-color: #007bff; /* Primary button color */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 8px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+button a {
+  color: #fff;
+  text-decoration: none;
+}
+
+button a:hover {
+  text-decoration: underline;
+}
+
+.delete {
+  background-color: #ff6b6b; /* Lighter red background color */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete:hover {
+  background-color: #ff4c4c; /* Slightly darker red shade on hover */
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.more {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 1; /* Ensure the more button is visible */
+  transition: opacity 0.5s ease; /* Smooth transition for opacity */
+}
+
+.edit-and-delete {
+  display: none; /* Hide by default */
+  flex-direction: column;
+  gap: 5px; /* Space between buttons */
+}

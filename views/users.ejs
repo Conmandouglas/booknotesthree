@@ -1,0 +1,28 @@
+<%- include('./partials/_header.ejs') %>
+
+<section>
+  <div class="form-container">
+    <div class="form">
+      <p style="font-style: italic;">Click to select a user</p>
+      <button><a href="/adduser">Add User</a></button>
+      <ul>
+        <% usersList.forEach(user => { %>
+        <li>
+          <p class="user <%= user.id === selectedUserId ? 'selected' : '' %>" id="user-<%= user.id %>" onclick="selectUser(<%= user.id %>)"><%= user.name %></p>
+          <div class="edit-and-delete" id="edit-and-delete-<%= user.id %>" style="<%= user.id === selectedUserId ? 'display: block;' : 'display: none;' %>">
+            <button><a href="/edituser?id=<%= user.id %>">Edit User</a></button>
+            <button class="delete" onclick="deleteUser(<%= user.id %>)">Delete User</button>
+          </div>
+        </li>
+        <% }) %>
+      </ul>
+      <a href="/">back</a>
+    </div>
+  </div>
+</section>
+
+<%- include('./partials/_footer.ejs') %>
+<script>
+  let selectedUserId = <%= selectedUserId %>;
+</script>
+<script src="./scripts/users.js"></script>
