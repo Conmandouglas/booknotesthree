@@ -1,38 +1,42 @@
-function selectUser(userId) {
-  // Deselect the previously selected user
-  if (selectedUserId) {
-    document.getElementById(`user-${selectedUserId}`).classList.remove('selected');
-    document.getElementById(`edit-and-delete-${selectedUserId}`).style.display = 'none';
-  }
-
-  // Select the new user
-  selectedUserId = userId;
-  document.getElementById(`user-${userId}`).classList.add('selected');
-  document.getElementById(`edit-and-delete-${userId}`).style.display = 'block';
-
-  // Update the session variable for the selected user
-  fetch(`/updateSelectedUser`, {
+/*function selectUser(userId) {
+  fetch('/updateSelectedUser', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userId: selectedUserId })
-  }).then(response => {
-    if (!response.ok) {
-      alert('Failed to update selected user');
+    body: JSON.stringify({ userId }),
+  })
+  .then(response => {
+    if (response.ok) {
+      // Update the UI after successful response
+      selectedUserId = userId;
+      document.querySelectorAll('.user').forEach(user => {
+        user.classList.remove('selected');
+      });
+      document.querySelector(`#user-${userId}`).classList.add('selected');
+      document.querySelectorAll('.edit-and-delete').forEach(buttons => {
+        buttons.style.display = 'none';
+      });
+      document.querySelector(`#edit-and-delete-${userId}`).style.display = 'block';
+    } else {
+      console.error('Failed to update selected user:', response.statusText);
     }
+  })
+  .catch(err => {
+    console.error('Error:', err);
   });
 }
 
 function deleteUser(userId) {
   if (confirm('Are you sure you want to delete this user?')) {
-    fetch(`/deleteUser?id=${userId}`, { method: 'DELETE' })
+    fetch(`/deleteuser?id=${userId}`)
       .then(response => {
         if (response.ok) {
-          location.reload(); // Reload the page to reflect the changes
+          location.reload();
         } else {
-          response.text().then(text => alert(text));
+          alert('Failed to delete user.');
         }
-      });
+      })
+      .catch(err => console.error('Error deleting user:', err));
   }
 }

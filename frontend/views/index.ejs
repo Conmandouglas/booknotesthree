@@ -40,7 +40,7 @@
       <% booksList.forEach(book => { %>
         <div class="book" id="book-<%= book.id %>">
           <a class="more" href="javascript:void(0)" onclick="toggleEditAndDelete(<%= book.id %>)">&#x2026;</a> <!-- Unicode character for ellipsis -->
-          <img src="<%= book.image_url %>" alt="<%= book.title %>">
+          <img src="<%= book.thumb %>" alt="<%= book.title %>">
           <h2><%= book.title %></h2>
           <p>Author: <%= book.author_name %></p>
           <div class="edit-and-delete" id="edit-and-delete-<%= book.id %>" style="display: none;">

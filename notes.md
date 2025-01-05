@@ -60,11 +60,24 @@ Thu, Jan 2
 [y] Add correct delete functionality and if null don't show
 
 Fri, Jan 3
-[] Make sure everything *functions* as intended
-[] Make sure working version is pushed to github
-[] Reformat file structure to be more organized (**WILL NOT BE AN EASY TASK**)
+[y] Make sure everything *functions* as intended
+[y] Make sure working version is pushed to github
+[-] Reformat file structure to be more organized (**WILL NOT BE AN EASY TASK**)
+  [y] Instead of index.js, have a frontend.js and backend.js
+  [y] Make sure it is working before continue
+  [y] Split each js file further by adding a frontendroutesjs and backendroutes.js
+  [y] Make sure it is working before continue
+
+Take a break, do some games and other coding, then continue:
+- Using own coding skills take the time to make each route work (/users) as well as backend routes like edit review and delete review
+- This will not be an easy task, but after this is done the project will be done
+
+Get done by SUNDAY and have a day before school starts to do other coding stuff that is NOT this project
+
+Next:
+[] Move javascript in EJS files into individual javascript files
+[] Make sure everything is organized and one code type is in each file
 [] Comment code and understand all code present
-- will not finish today, finish by January 4 coffee shop.
 
 
 KEEP THIS NOTE OPEN AFTER PROJECT:
