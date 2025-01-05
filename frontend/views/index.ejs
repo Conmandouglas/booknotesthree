@@ -56,7 +56,7 @@
                 <li class="review">
                   <p>Details: <%= review.details %></p>
                   <p>Grade: <%= review.grade %></p>
-                  <button><a href="/editReview?id=<%= review.id %>">Edit Review</a></button>
+                  <button><a href="/editreview?id=<%= review.id %>">Edit Review</a></button>
                   <button class="delete" onclick="deleteReview(<%= review.id %>)">Delete Review</a></button>
                 </li>
               <% }) %>

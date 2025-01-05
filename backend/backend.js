@@ -189,6 +189,35 @@ app.post('/adduser', async (req, res) => {
   }
 });
 
+app.post('/addreview', async (req, res) => {
+  const { book_id, details, grade } = req.body;
+
+  try {
+    if (!book_id) {
+      throw new Error("Book ID is required");
+    }
+
+    const insertReviewQuery = `
+      INSERT INTO reviews (book_id, details, grade, user_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id;  -- Adding RETURNING statement to get the inserted review id
+    `;
+    
+    const reviewResult = await db.query(insertReviewQuery, [book_id, details, grade, req.session.selectedUserId]);
+
+    // Respond with the review details
+    res.status(201).json({ 
+      reviewId: reviewResult.rows[0].id,
+      book_id: reviewResult.rows[0].book_id,
+      details: details,
+      grade: grade
+    });
+  } catch (err) {
+    console.error('Error adding review', err.stack);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // other routes to do myself
 
 app.listen(port, () => {

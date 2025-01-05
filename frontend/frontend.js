@@ -88,7 +88,29 @@ app.post('/adduser', async (req, res) => {
   }
 });
 
-// Other routes... after first route working be done
+app.post('/addreview', async (req, res) => {
+  try {
+    const { book_id, details, grade } = req.body;
+
+    // Send the review data to the backend via Axios
+    const response = await axios.post(`${API_URL}/addreview`, { book_id, details, grade });
+
+    // Handle the response
+    if (response.status === 201) {
+      // Review was successfully added. You can update the UI here or show a success message.
+      console.log('Review added successfully:', response.data);
+
+      // Optionally, redirect or do something after success
+      res.redirect('/');
+    } else {
+      throw new Error('Failed to add review');
+    }
+  } catch (err) {
+    console.error('Error posting a review', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Frontend server running on port ${port}`);
