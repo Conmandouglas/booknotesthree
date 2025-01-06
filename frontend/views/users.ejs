@@ -23,17 +23,20 @@
           <% }) %>
         </ul>
       <% } %>
-      <a href="/">back</a>
+      <a href="/">Back to Reviews</a>
     </div>
   </div>
 </section>
 
 <%- include('./partials/_footer.ejs') %>
+
 <script>
-  let selectedUserId = <%= selectedUserId %>;
+  // Set a fallback for selectedUserId
+  let selectedUserId = <%= selectedUserId || 'null' %>;
 
   function selectUser(userId) {
-    fetch('/updateSelectedUser', {
+    console.log('triggered select user!');
+    fetch('http://localhost:4000/updateSelectedUser', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +45,7 @@
     })
     .then(response => {
       if (response.ok) {
-        // Update the UI after successful response
+        console.log('User updated successfully');
         selectedUserId = userId;
         document.querySelectorAll('.user').forEach(user => {
           user.classList.remove('selected');

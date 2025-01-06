@@ -1,21 +1,20 @@
 import express from 'express';
 import pg from 'pg';
-import fetch from 'node-fetch';
-import session from 'express-session';
+import axios from 'axios';
 import cors from 'cors';
 
-const app = express();  
-const port = 4000;  
-  
-const db = new pg.Client({  
-  user: "postgres",  
-  host: "localhost",  
-  database: "simplebooknotes",  
-  password: "the_password",  
-  port: 5432,  
-});  
-  
-db.connect().catch(err => console.log(err));  
+const app = express();
+const port = 4000;
+
+const db = new pg.Client({
+  user: "postgres",
+  host: "localhost",
+  database: "simplebooknotes",
+  password: "the_password",
+  port: 5432,
+});
+
+db.connect().catch(err => console.log(err));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,35 +24,11 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(session({
-  secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: false,
-    httpOnly: true,
-    sameSite: 'none'
-  }
-}));
+let usersList = [];
+let selectedUserId = null; // Use a variable for the selected user ID
 
-app.use((req, res, next) => {
-  console.log('Before Session Middleware:', req.session);
-  if (!req.session.selectedUserId) {
-    console.log('Setting default user ID');
-    req.session.selectedUserId = 1;
-  }
-  console.log('After Session Middleware:', req.session);
-  next();
-});
-
-
-
-app.get("/session", (req, res) => {
-  res.json(req.session);
-});
-
+// Fetch books and reviews from the database
 async function fetchBooksAndReviews() {
-  console.log("Fetching books and reviews");
   const booksQuery = `
     SELECT b.id AS book_id, b.title, b.author_name, b.thumb, r.id AS review_id, r.details, r.grade
     FROM books b
@@ -61,22 +36,46 @@ async function fetchBooksAndReviews() {
     WHERE b.deleted_at IS NULL
     ORDER BY b.id DESC, r.id DESC;
   `;
-  const result = await db.query(booksQuery).catch(err => {
-    console.error('Error executing query', err.stack);
-    throw err;
-  });
-
+  const result = await db.query(booksQuery);
   const books = {};
+
   for (const row of result.rows) {
     if (!books[row.book_id]) {
+      let imageUrl = row.thumb;
+
+      // If thumbnail is missing, fetch from Open Library
+      if (!imageUrl) {
+        const openLibraryUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(row.title)}&author=${encodeURIComponent(row.author_name)}`;
+        try {
+          const response = await fetch(openLibraryUrl);
+          const data = await response.json();
+          const coverId = data.docs && data.docs[0] && data.docs[0].cover_edition_key;
+          imageUrl = coverId ? `https://covers.openlibrary.org/b/olid/${coverId}-L.jpg` : 'https://via.placeholder.com/200x300?text=No+Cover';
+          
+          // Optionally, update the book's thumbnail in the database
+          const updateThumbQuery = `
+            UPDATE books
+            SET thumb = $1
+            WHERE id = $2;
+          `;
+          await db.query(updateThumbQuery, [imageUrl, row.book_id]);
+        } catch (error) {
+          console.error('Error fetching from Open Library:', error);
+          imageUrl = 'https://via.placeholder.com/200x300?text=No+Cover';  // Fallback image
+        }
+      }
+
+      // Add the book to the books object
       books[row.book_id] = {
         id: row.book_id,
         title: row.title,
         author_name: row.author_name,
-        thumb: row.thumb,
+        thumb: imageUrl,  // Use the fetched or existing thumbnail
         reviews: []
       };
     }
+
+    // Add reviews if they exist
     if (row.review_id) {
       books[row.book_id].reviews.push({
         id: row.review_id,
@@ -86,9 +85,9 @@ async function fetchBooksAndReviews() {
     }
   }
 
-  console.log("Books and reviews fetched successfully:", books);
   return books;
 }
+
 
 async function usersName(userId) {
   console.log("Getting the user's name");
@@ -111,58 +110,59 @@ async function usersName(userId) {
   }
 }
 
+const getUserName = async (userId) => {
+  const result = await db.query('SELECT name FROM users WHERE id = $1', [userId]);
+  return result.rows[0]?.name;
+};
+
 async function fetchUsers() {
   const usersQuery = `
   SELECT id, name
   FROM users
   WHERE deleted_at IS NULL
-  ORDER BY id;  
+  ORDER BY id;
   `;
   const result = await db.query(usersQuery);
-  const usersList = result.rows;
-  return usersList;
+  return result.rows;
 }
 
-app.get("/", async (req, res) => {  
-  try {  
-  console.log('Session in GET /:', req.session);
-   const booksListObject = await fetchBooksAndReviews();  
-   const userId = req.session.selectedUserId;
-   const userName = await usersName(userId);  
-   console.log(`the username is ${userName}`);
-   console.log(`while the id is ${userId}`);
 
-   const booksList = Object.values(booksListObject);
+app.get("/", async (req, res) => {
+  try {
+    // Query to find the first available user (lowest ID where deleted_at is NULL)
 
-   res.json({ booksList, userName });  
-  } catch (err) {  
-   console.error('Error fetching data', err.stack);  
-   res.status(500).send('Internal Server Error');  
-  }  
-});  
+    // Fetch the books and reviews (assuming you have a fetchBooksAndReviews function)
+    const booksListObject = await fetchBooksAndReviews();
+
+    // Fetch the user's name (if needed, replace with actual function to fetch the name)
+    const userName = selectedUserId ? await getUserName(selectedUserId) : null;
+
+    // Convert the booksListObject to an array (assuming it's an object)
+    const booksList = Object.values(booksListObject);
+
+    // Respond with books and the selected user's name
+    res.json({ booksList, userName });
+
+  } catch (err) {
+    console.error('Error fetching data', err.stack);
+    res.status(500).send('Internal Server Error');
+  }
+});
   
 app.get('/users', async (req, res) => {
-  console.log("hit backend users");
   try {
     const usersList = await fetchUsers();
-    const selectedUserId = req.session.selectedUserId; // Get the selected user ID from the session
-
-    res.json({
-      usersList,         // List of users
-      selectedUserId,    // Selected user ID
-    });
+    res.json({ usersList, selectedUserId });
   } catch (err) {
     console.error('Error fetching users', err.stack);
     res.status(500).send('Internal Server Error');
   }
 });
 
+
 app.post('/add', async (req, res) => {
-  console.log("hit backend");
+  const { title, author_name, details, grade } = req.body;
   try {
-    console.log(req.body);
-    console.log("that was req body");
-    const { title, author_name, details, grade } = req.body; // Destructure the data
     const insertBookQuery = `
       INSERT INTO books (title, author_name)
       VALUES ($1, $2)
@@ -176,7 +176,7 @@ app.post('/add', async (req, res) => {
         INSERT INTO reviews (book_id, details, grade, user_id)
         VALUES ($1, $2, $3, $4);
       `;
-      await db.query(insertReviewQuery, [bookId, details, grade, req.session.selectedUserId]);
+      await db.query(insertReviewQuery, [bookId, details, grade, selectedUserId]);
     }
     res.redirect('/'); // Redirect after adding
   } catch (err) {
@@ -185,6 +185,7 @@ app.post('/add', async (req, res) => {
   }
 });
 
+// Handle user addition without session
 app.post('/adduser', async (req, res) => {
   const { name } = req.body;
   if (!name) {
@@ -198,16 +199,8 @@ app.post('/adduser', async (req, res) => {
       RETURNING id;
     `;
     const userResult = await db.query(insertUserQuery, [name]);
-    req.session.selectedUserId = userResult.rows[0].id;
-    req.session.save((err) => {
-      if (err) {
-        console.error('Error saving session:', err);
-        return res.status(500).send('Internal Server Error');
-      }
-      console.log('Session after adding user:', req.session);
-      res.status(201).send({ id: userResult.rows[0].id });
-    });
-    
+    selectedUserId = userResult.rows[0].id; // Set selectedUserId directly
+    res.status(201).send({ id: userResult.rows[0].id });
   } catch (err) {
     console.error('Error adding user', err.stack);
     res.status(500).send('Internal Server Error');
@@ -228,7 +221,7 @@ app.post('/addreview', async (req, res) => {
       RETURNING id;  -- Adding RETURNING statement to get the inserted review id
     `;
     
-    const reviewResult = await db.query(insertReviewQuery, [book_id, details, grade, req.session.selectedUserId]);
+    const reviewResult = await db.query(insertReviewQuery, [book_id, details, grade, selectedUserId]);
 
     // Respond with the review details
     res.status(201).json({ 
@@ -388,12 +381,13 @@ app.post('/updateuser', async (req, res) => {
       WHERE id = $2
     `;
     await db.query(updateUserQuery, [name, id]);
+    res.status(200).json({ message: 'User updated successfully' });
   } catch (err) {
     console.error('Error updating user', err.stack);
     res.status(500).send('Internal Server Error');
   }
 });
-d
+
 app.delete('/deletebook', async (req, res) => {
   console.log('now its in the backend...');
   const { id } = req.query;  // Corrected to match the query parameter name
@@ -471,7 +465,7 @@ app.delete('/deleteuser', async (req, res) => {
     }
 
     // If the deleted user was the selected user, update the selected user to the previous user ID
-    if (req.session.selectedUserId === parseInt(id, 10)) {
+    if (selectedUserId === parseInt(id, 10)) {
       const previousUserQuery = `
         SELECT id
         FROM users
@@ -482,7 +476,7 @@ app.delete('/deleteuser', async (req, res) => {
       const previousUserResult = await db.query(previousUserQuery, [id]);
 
       if (previousUserResult.rows.length > 0) {
-        req.session.selectedUserId = previousUserResult.rows[0].id;
+        selectedUserId = previousUserResult.rows[0].id;
       } else {
         // If there is no previous user, select the next user
         const nextUserQuery = `
@@ -495,7 +489,7 @@ app.delete('/deleteuser', async (req, res) => {
         const nextUserResult = await db.query(nextUserQuery, [id]);
 
         if (nextUserResult.rows.length > 0) {
-          req.session.selectedUserId = nextUserResult.rows[0].id;
+          selectedUserId = nextUserResult.rows[0].id;
         }
       }
     }
@@ -505,6 +499,25 @@ app.delete('/deleteuser', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.post('/updateSelectedUser', async (req, res) => {
+  const { userId } = req.body;
+  console.log("in backend now");
+  console.log(userId);
+  
+  // Check if the userId exists
+  const userExists = await db.query('SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL', [userId]);
+  
+  if (userExists.rows.length > 0) {
+    selectedUserId = userId; // Set the new selectedUserId
+    res.status(200).send('Selected user updated');
+    console.log("YESSS");
+  } else {
+    res.status(404).send('User not found');
+    console.log("what the sussy baka");
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Backend server running on port ${port}`);  

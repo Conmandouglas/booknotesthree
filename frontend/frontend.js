@@ -25,8 +25,14 @@ app.set('view engine', 'ejs');
 
 app.get("/", async (req, res) => {
   try {
-    const response = await axios.get(`${API_URL}/`, { withCredentials: true }); // No need to pass userId explicitly
-    res.render("index", response.data);
+    const response = await axios.get(`${API_URL}/`); // No session handling needed
+    console.log(response.data.userName);
+    if (response.data.userName) {
+      res.render("index", response.data);
+    } else {
+      res.redirect('/users');
+    }
+
   } catch (err) {
     console.error("Error fetching data", err);
     res.status(500).send("Internal Server Error");
@@ -36,11 +42,9 @@ app.get("/", async (req, res) => {
 app.get('/users', async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/users`);
-    console.log(response.data);
-    
     res.render("users", {
-      usersList: response.data.usersList,       // Extract the users list
-      selectedUserId: response.data.selectedUserId, // Extract selectedUserId
+      usersList: response.data.usersList,
+      selectedUserId: response.data.selectedUserId,
       error: null,
     });
   } catch (err) {
@@ -82,8 +86,8 @@ app.post('/add', async (req, res) => {
 
 app.post('/adduser', async (req, res) => {
   try {
-    const name = req.body.name; // Get the name from the request
-    await axios.post(`${API_URL}/adduser`, { name }, { withCredentials: true }); // Pass name in the POST request
+    const name = req.body.name; 
+    await axios.post(`${API_URL}/adduser`, { name });
     res.redirect('/');
   } catch (err) {
     console.error('Error fetching add user', err);
@@ -173,10 +177,10 @@ app.get('/update', async (req, res) => {
 //post edit book
 app.post('/update', async (req, res) => {
   try {
-    const { id, title, author_name, details, grade } = req.body;
+    const { id, title, author_name } = req.body;
     console.log("Hit! tryong to /update a book POST");
     
-    const response = await axios.post(`${API_URL}/update`, { id, title, author_name, details, grade });
+    const response = await axios.post(`${API_URL}/update`, { id, title, author_name });
 
     if (response.status === 200) {
       console.log('Book updated successfully:', response.data);
