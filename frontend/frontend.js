@@ -3,6 +3,7 @@ import axios from 'axios';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session'; // Corrected import statement
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
@@ -13,6 +14,8 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
+
 
 app.use(express.static(path.join(__dirname, '../public'))); // Serve static files from the 'public' directory
 
@@ -22,7 +25,7 @@ app.set('view engine', 'ejs');
 
 app.get("/", async (req, res) => {
   try {
-    const response = await axios.get(`${API_URL}/`); // No need to pass userId explicitly
+    const response = await axios.get(`${API_URL}/`, { withCredentials: true }); // No need to pass userId explicitly
     res.render("index", response.data);
   } catch (err) {
     console.error("Error fetching data", err);
@@ -80,7 +83,7 @@ app.post('/add', async (req, res) => {
 app.post('/adduser', async (req, res) => {
   try {
     const name = req.body.name; // Get the name from the request
-    await axios.post(`${API_URL}/adduser`, { name }); // Pass name in the POST request
+    await axios.post(`${API_URL}/adduser`, { name }, { withCredentials: true }); // Pass name in the POST request
     res.redirect('/');
   } catch (err) {
     console.error('Error fetching add user', err);
@@ -110,6 +113,162 @@ app.post('/addreview', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+//get edit review page
+app.get('/updatereview', async (req, res) => {
+  try {
+    console.log("Hit! Trying to render '/updatereview'");
+    const reviewId = req.query.id;
+    const result = await axios.get(`${API_URL}/updatereview`, { params: { id: reviewId } });
+
+    // Access `data` property of Axios response
+    res.render('edit.ejs', {
+      review: result.data.review, // Correctly access the review data
+      book: result.data.book,     // Correctly access the book data
+    });
+  } catch (err) {
+    console.error('Error rendering page', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+//post edit review
+app.post('/updatereview', async (req, res) => {
+  try {
+    const { id, details, grade } = req.body;
+
+    // Call the backend API
+    const response = await axios.post(`${API_URL}/updatereview`, { id, details, grade });
+
+    if (response.status === 200) {
+      console.log('Review updated successfully:', response.data);
+
+      // Redirect to the homepage after a successful update
+      res.redirect('/');
+    } else {
+      throw new Error('Failed to update review');
+    }
+  } catch (err) {
+    console.error('Error editing review:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/update', async (req, res) => {
+  try {
+    console.log("Hit! Trying to render /update (update book)");
+    const bookId = req.query.id; // Extract the query parameter 'id'
+    const result = await axios.get(`${API_URL}/update`, { params: { bookId } }); // Pass 'bookId' in params
+    res.render('edit.ejs', {
+      review: result.data.review, // Correctly access the review data
+      book: result.data.book,     // Correctly access the book data
+    });
+  } catch (err) {
+    console.error('Error rendering page', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+//post edit book
+app.post('/update', async (req, res) => {
+  try {
+    const { id, title, author_name, details, grade } = req.body;
+    console.log("Hit! tryong to /update a book POST");
+    
+    const response = await axios.post(`${API_URL}/update`, { id, title, author_name, details, grade });
+
+    if (response.status === 200) {
+      console.log('Book updated successfully:', response.data);
+
+      // Redirect to the homepage after a successful update
+      res.redirect('/');
+    } else {
+      throw new Error('Failed to update review');
+    }
+  } catch (err) {
+    console.error('Error editing review:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/updateuser', async (req, res) => {
+  try {
+    console.log("Hit! Trying to render /updateuser");
+    const { id } = req.query; // Extract the query parameter 'id'
+    const result = await axios.get(`${API_URL}/updateuser`, { params: { id } }); // Pass 'bookId' in params
+    res.render('edituser.ejs', { user: result.data.user });
+  } catch (err) {
+    console.error('Error rendering page', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/updateuser', async (req, res) => {
+  try {
+    const { id, name } = req.body;
+    console.log("Hit! tryong to /update a -user- POST");
+    
+    const response = await axios.post(`${API_URL}/updateuser`, { id, name });
+
+    if (response.status === 200) {
+      console.log('User updated successfully:', response.data);
+
+      // Redirect to the homepage after a successful update
+      res.redirect('/');
+    } else {
+      throw new Error('Failed to update user');
+    }
+  } catch (err) {
+    console.error('Error editing user:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/deletebook', async (req, res) => {
+  try {
+    console.log("trying delete book in frontend");
+    const { id } = req.query;
+    console.log(`this is the book id: ${id}`);
+    await axios.delete(`${API_URL}/deletebook`, { params: { id } });     
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error deleting book:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/deletereview', async (req, res) => {
+  try {
+    console.log("trying delete book in frontend");
+    const { id } = req.query;
+    console.log(`this is the review id: ${id}`);
+    await axios.delete(`${API_URL}/deletereview`, { params: { id } });     
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error deleting book:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/deleteuser', async (req, res) => {
+  try {
+    console.log('trying to delete user in frontend');
+    const { id } = req.query;
+    console.log('this is the user id: ' + id);
+    await axios.delete(`${API_URL}/deleteuser`, { params: { id } });
+    res.redirect('/users');
+  } catch (error) {
+    console.error('Error deleting user:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+// next:
+// 1. do backend user routes (user edit/delete) use postman
+// 2. then get the user page working (selecting users, and the bold & buttons showing)
+// 3. get thumbnails to show
 
 
 app.listen(port, () => {

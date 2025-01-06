@@ -4,7 +4,7 @@
   <div class="form-container">
     <div class="form">
       <h1><%= book ? 'Edit Book' : review ? 'Edit Review' : 'Add Book' %></h1>
-      <form action="<%= book ? '/update' : review ? '/updateReview' : '/add' %>" method="POST">
+      <form action="<%= book ? '/update' : review ? '/updatereview' : '/add' %>" method="POST">
         <% if (book) { %>
           <input type="hidden" name="id" value="<%= book.book_id %>">
           <label for="title">Title:</label>

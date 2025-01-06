@@ -16,7 +16,7 @@
             <li>
               <p class="user <%= user.id === selectedUserId ? 'selected' : '' %>" id="user-<%= user.id %>" onclick="selectUser(<%= user.id %>)"><%= user.name %></p>
               <div class="edit-and-delete" id="edit-and-delete-<%= user.id %>" style="<%= user.id === selectedUserId ? 'display: block;' : 'display: none;' %>">
-                <button><a href="/edituser?id=<%= user.id %>">Edit User</a></button>
+                <button><a href="/updateuser?id=<%= user.id %>">Edit User</a></button>
                 <button class="delete" onclick="deleteUser(<%= user.id %>)">Delete User</button>
               </div>
             </li>

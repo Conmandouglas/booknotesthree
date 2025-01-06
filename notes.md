@@ -79,6 +79,10 @@ Next:
 [] Make sure everything is organized and one code type is in each file
 [] Comment code and understand all code present
 
+later roadmap:
+- fix thumbnails
+- add scrollbar for reviews if three or more
+
 
 KEEP THIS NOTE OPEN AFTER PROJECT:
 To do:
