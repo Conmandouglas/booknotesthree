@@ -393,7 +393,7 @@ app.post('/updateuser', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
+d
 app.delete('/deletebook', async (req, res) => {
   console.log('now its in the backend...');
   const { id } = req.query;  // Corrected to match the query parameter name
