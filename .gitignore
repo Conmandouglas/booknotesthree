@@ -4,3 +4,4 @@ node_modules/
 *.tmp
 *.swp
 .DS_Store
+*.md

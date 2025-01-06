@@ -51,6 +51,7 @@
           <% if (book.reviews.length === 0) { %>
             <p>No reviews found.</p>
           <% } else { %>
+          <div class="reviews-container">
             <ul>
               <% book.reviews.forEach(review => { %>
                 <li class="review">
@@ -61,6 +62,7 @@
                 </li>
               <% }) %>
             </ul>
+          </div>
           <% } %>
         </div>
       <% }) %>

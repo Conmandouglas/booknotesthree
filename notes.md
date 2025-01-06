@@ -80,8 +80,8 @@ Next:
 [] Comment code and understand all code present
 
 later roadmap:
-- fix thumbnails
-- add scrollbar for reviews if three or more
+- Add scrollbar if there is more than 3 reviews
+- Maybe: try an orm
 
 
 KEEP THIS NOTE OPEN AFTER PROJECT:
@@ -93,6 +93,7 @@ To do:
   3. practice using orms
 After this project:
 - Do the to-do list project and review past knowledge (like on Notion plan)
+  - study and practice
 - Put all of this onto github and my portfolio
 - Make a new website for portfolio, use previous capstones for inspo, but this time it is a whole new project
 - Continue with Angela's course

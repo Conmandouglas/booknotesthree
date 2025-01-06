@@ -193,3 +193,9 @@ button a:hover {
   flex-direction: column;
   gap: 5px; /* Space between buttons */
 }
+
+.reviews-container {
+  max-height: 200px; /* Adjust based on how many reviews you want to display */
+  overflow-y: auto;  /* Enables scrolling */
+  margin-bottom: 20px;  /* Adjust for spacing between reviews */
+}
