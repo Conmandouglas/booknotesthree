@@ -195,7 +195,7 @@ button a:hover {
 }
 
 .reviews-container {
-  max-height: 200px; /* Adjust based on how many reviews you want to display */
+  max-height: 400px; /* Adjust based on how many reviews you want to display */
   overflow-y: auto;  /* Enables scrolling */
   margin-bottom: 20px;  /* Adjust for spacing between reviews */
 }
